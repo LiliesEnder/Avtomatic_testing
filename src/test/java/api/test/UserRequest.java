@@ -1,38 +1,20 @@
 package api.test;
 
+import lombok.*;
+
 import java.util.List;
 
-public class UserRequest extends AuthRequest {
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserRequest {
+    private String username;
+    private String password;
+    private String email;
+    private String address;
+    private String phone;
     private String token;
     private String id;
-    private List<Object> orders;
-
-    public UserRequest(String username, String password, String email, String address, String phone) {
-        super(username, password, email, address, phone);
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public List<Object> getOrders() {
-        return orders;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setOrders(List<Object> orders) {
-        this.orders = orders;
-    }
-
+    private List<Order> orders;
 }

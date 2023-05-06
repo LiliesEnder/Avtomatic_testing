@@ -1,6 +1,5 @@
 package api.test;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,10 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthRequest {
-    private String username;
-    private String password;
-    private String email;
-    private String address;
-    private String phone;
-}
+public class Order {
+        private long dateCreated;
+        private String name;
+        private float price;
+        private long quantity;
+
+    }

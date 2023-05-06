@@ -1,5 +1,5 @@
-import api.test.AuthRequest;
-import api.test.UserRequest;
+import api.test.*;
+import com.mongodb.client.MongoDatabase;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -7,11 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Order;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -26,9 +29,13 @@ public class ShopApiTest {
     private static String product_id_del;
     private static String cart_id;
     private static String item_to_del;
+    private static String user_id;
+
+    private static MongoDatabase mongo;
 
     @BeforeAll
     public static void generateUser() {
+        mongo = MongoConnector.getDataBase();
         int leftLimit = 48; // numeral '0'
         int rightLimit = 122; // letter 'z'
         int targetStringLength = 10;
@@ -47,18 +54,21 @@ public class ShopApiTest {
     @Order(1)
     @DisplayName("/api/catalog: 200, Получение телефона без авторизации")
     public void getCatalogTest() {
+        List<Phone> phones = new ArrayList<>();
+        mongo.getCollection("products", Phone.class).find().into(phones);
+
         Response response = given().when()
                 .contentType(ContentType.JSON)
-                .get(url + "/catalog/");
+                .get(url + "/catalog");
         JsonPath js = response.jsonPath();
-        response.then()
+        Phone[] catalog = response.then()
                 .log().body()
                 .statusCode(200)
-                .body("info.name", Matchers.hasItems("Apple iPhone 8 Plus", "Apple iPhone X", "Huawei Mate 10 Pro"));
-        product_id = js.get("[0]._id");
-        product_name = js.get("[0].info.name");
-        System.out.println("Product_id: " + product_id);
-        product_id_del = js.get("[1]._id");
+                .extract().as(Phone[].class);
+        assertThat(catalog).containsExactlyInAnyOrderElementsOf(phones);
+        product_id = catalog[0].get_id();
+        product_name = catalog[0].getInfo().getName();
+        product_id_del = catalog[1].get_id();
     }
 
 
@@ -88,6 +98,7 @@ public class ShopApiTest {
                 .body("username", Matchers.equalTo(username))
                 .body("phone", Matchers.equalTo("-"));
         token = js.getString("token");
+        user_id = js.getString("id");
     }
 
     @Test
@@ -97,14 +108,14 @@ public class ShopApiTest {
         given()
                 .contentType(ContentType.JSON)
                 .header("Authorization", "Bearer " + token)
-                .body("{\"product\": \"" + product_id + "\", \"quantity\": 1}")
+                .body(new CartAdd(product_id, 1, user_id))
                 .post(url + "/cart")
                 .then()
                 .log().body().statusCode(200);
         given()
                 .contentType(ContentType.JSON)
                 .header("Authorization", "Bearer " + token)
-                .body("{\"product\": \"" + product_id_del + "\", \"quantity\": 2}")
+                .body(new CartAdd(product_id_del, 2, user_id))
                 .post(url + "/cart")
                 .then()
                 .log().body().statusCode(200);
@@ -118,14 +129,16 @@ public class ShopApiTest {
                 .header("Authorization", "Bearer " + token)
                 .get(url + "/cart");
         JsonPath js = response.jsonPath();
-        response.then().log().body()
+        Cart cart = response.then().log().body()
                 .statusCode(200)
-                .body("items[0].product._id", Matchers.equalTo(product_id))
-                .body("items[0].quantity", Matchers.equalTo(1))
-                .body("items[1].product._id", Matchers.equalTo(product_id_del))
-                .body("items[1].quantity", Matchers.equalTo(2));
-        cart_id = js.getString("_id");
-        item_to_del = js.getString("items[1]._id");
+                .extract()
+                .as(Cart.class);
+        Assertions.assertEquals(cart.getItems().get(0).getProduct().get_id(), product_id);
+        Assertions.assertEquals(cart.getItems().get(0).getQuantity(), 1);
+        Assertions.assertEquals(cart.getItems().get(1).getProduct().get_id(), product_id_del);
+        Assertions.assertEquals(cart.getItems().get(2).getQuantity(), 2);
+        cart_id = cart.get_id();
+        item_to_del = cart.getItems().get(1).get_id();
     }
 
     @Test
@@ -158,18 +171,14 @@ public class ShopApiTest {
                 .header("Authorization", "Bearer " + token)
                 .get(url + "/user");
         JsonPath js = response.jsonPath();
-        response.then()
+        UserRequest user = response.then()
                 .statusCode(200)
-                .body("address", Matchers.equalTo("-"))
-                .body("username", Matchers.equalTo(username))
-                .body("phone", Matchers.equalTo("-"));
-        UserRequest user = new UserRequest(
-                js.getString("username"),
-                null,
-                js.getString("email"),
-                js.getString("address"),
-                js.getString("phone")
-        );
+                .extract().as(UserRequest.class);
+
+        Assertions.assertEquals(user.getAddress(), "-");
+        Assertions.assertEquals(user.getUsername(), username);
+        Assertions.assertEquals(user.getPhone(), "-");
+
         user.setId(js.getString("id"));
         user.setToken(js.getString("token"));
         user.setOrders(js.getList("orders"));
