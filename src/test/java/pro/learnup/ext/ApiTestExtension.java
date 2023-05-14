@@ -1,5 +1,6 @@
 package pro.learnup.ext;
 
+import config.TestConfig;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
@@ -9,7 +10,6 @@ import io.restassured.mapper.ObjectMapperType;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import config.TestConfig;
 
 public class ApiTestExtension implements BeforeAllCallback {
     @Override

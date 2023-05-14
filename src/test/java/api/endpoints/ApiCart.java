@@ -3,7 +3,6 @@ package api.endpoints;
 import api.models.Cart;
 import api.models.User;
 import io.qameta.allure.Step;
-import io.restassured.http.Header;
 
 public class ApiCart {
     Endpoint endpoint = new Endpoint("/api/cart/");
