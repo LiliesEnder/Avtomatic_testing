@@ -1,4 +1,6 @@
-import api.test.*;
+package tests.api;
+
+import api.models.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import io.restassured.http.ContentType;
@@ -8,9 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Order;
+import pro.learnup.testdata.MongoConnector;
+
 import static com.mongodb.client.model.Filters.eq;
 
 import java.util.ArrayList;
@@ -186,9 +189,9 @@ public class ShopApiTest {
                 .header("Authorization", "Bearer " + token)
                 .get(url + "/user");
         JsonPath js = response.jsonPath();
-        UserRequest user = response.then()
+        User user = response.then()
                 .statusCode(200)
-                .extract().as(UserRequest.class);
+                .extract().as(User.class);
 
         Assertions.assertEquals(user.getAddress(), "-");
         Assertions.assertEquals(user.getUsername(), username);
@@ -222,7 +225,7 @@ public class ShopApiTest {
     public void order(){
         given().contentType(ContentType.JSON)
                 .header("Authorization", "Bearer " + token)
-                .body(new OrderRequest(new api.test.Order(1643796608156L, product_name, 700, 2)))
+                .body(new OrderRequest(new api.models.Order(1643796608156L, product_name, 700, 2)))
                 .then().log().body().statusCode(200);
     }
 }

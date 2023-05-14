@@ -1,20 +1,19 @@
-package api.test;
+package api.models;
 
-import lombok.*;
 
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRequest {
+public class AuthRequest {
     private String username;
     private String password;
     private String email;
     private String address;
     private String phone;
-    private String token;
-    private String id;
-    private List<Order> orders;
 }

@@ -7,6 +7,7 @@ import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selectors.byText;
 
 public class PhonePage extends BasePage {
 
@@ -27,5 +28,10 @@ public class PhonePage extends BasePage {
         return this;
     }
 
+    @Step("Нажать на кнопку Add to Cart")
+    public PhonePage checkSuccessfulPhoneAddedToCart() {
+        $(byText("Item added to your cart.")).shouldBe(visible);
+        return this;
+    }
 
 }

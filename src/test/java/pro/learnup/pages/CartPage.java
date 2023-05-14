@@ -10,6 +10,7 @@ import org.openqa.selenium.By;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.*;
 
+@Page(url="/cart")
 public class CartPage extends BasePage {
 
     private SelenideElement checkOutButton = $(By.xpath("//button[.='Checkout']"));

@@ -1,4 +1,4 @@
-package pro.learnup;
+package tests.ui;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;

@@ -1,4 +1,4 @@
-package api.test;
+package api.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartItem {
-    private Phone product;
+public class CartAdd {
+
+    private String product;
     private long quantity;
-    private String _id;
+    private String user;
+
 }
